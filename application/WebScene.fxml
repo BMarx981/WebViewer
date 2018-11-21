@@ -12,5 +12,6 @@
       <TextField fx:id="searchField" layoutX="14.0" layoutY="14.0" onAction="#searchFieldEntered" prefHeight="25.0" prefWidth="578.0" />
       <WebView fx:id="webView" layoutX="14.0" layoutY="49.0" prefHeight="542.0" prefWidth="578.0" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="49.0" />
       <Button fx:id="search" layoutX="613.0" layoutY="14.0" mnemonicParsing="false" onAction="#searchButtonPressed" text="Search" />
+      <Button fx:id="reload" layoutX="692.0" layoutY="14.0" mnemonicParsing="false" onAction="#reloadPressed" text="Reload" />
    </children>
 </AnchorPane>
