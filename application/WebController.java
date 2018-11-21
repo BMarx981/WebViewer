@@ -1,15 +1,21 @@
 package application;
 
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Worker;
+import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -23,42 +29,45 @@ public class WebController implements Initializable {
 	@FXML TextField searchField = new TextField();
 	@FXML Button search = new Button("Search");
 	@FXML Button reload = new Button();
+	String editor;
 	WebEngine engine;
 	boolean fieldsSet;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		engine = webView.getEngine();
-		engine.setJavaScriptEnabled(true);
-		engine.getLoadWorker().progressProperty().addListener((o, old, progress) -> updateFields());
-		fieldsSet = false;
+
+		
 	}
-	
-	private void updateFields() {
-		Document doc = engine.getDocument();
-		if (doc != null && !fieldsSet) {
-			try { 
-				Element inputField = (Element) XPathFactory.newInstance().newXPath().evaluate("//*[@tag='input']", doc, XPathConstants.NODE);
-				if (inputField != null) {
-					NodeList list = engine.getDocument().getElementsByTagName("input");
-					for (int i = 0; i < list.getLength(); i++) {
-						System.out.println(list.item(i).toString());
-					}
-					inputField.setAttribute("value", "NEW TEXT");
-					fieldsSet = true;
-				}
-			} catch (Exception e) {
-				System.out.println("FAIL!!!");
-			}
-		}
-	}
-	
+
 	public void searchFieldEntered() {
 		String text = searchField.getText();
 		engine.load(text);
 	}
 	
 	public void searchButtonPressed() {
+		engine.getLoadWorker().stateProperty().addListener(
+	            new ChangeListener<State>() {
+	                public void changed(ObservableValue ov, State oldState, State newState) {
+	                    if (newState == Worker.State.SUCCEEDED) {
+	                        Document doc = engine.getDocument();
+	                        try {
+	                            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+	                            System.out.println(transformer.getOutputProperties());
+	                            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+	                            transformer.setOutputProperty(OutputKeys.METHOD, "html");
+	                            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+	                            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+	                            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+	                            transformer.transform(new DOMSource(doc),
+	                                    new StreamResult(new OutputStreamWriter(System.out, "UTF-8")));
+	                        } catch (Exception ex) {
+	                            ex.printStackTrace();
+	                        }
+	                    }
+	                }
+	            });
 		engine.load("http://localhost:8080/");
 		
 	}
@@ -68,3 +77,26 @@ public class WebController implements Initializable {
 	}
 
 }
+//
+//final WebView webView = new WebView();
+//final WebEngine engine = webView.getEngine();
+//engine.documentProperty().addListener(new ChangeListener<Document>() {
+//  @Override public void changed(ObservableValue<? extends Document> ov, Document oldDoc, Document doc) {
+//    if (doc != null && !loginAttempted.get()) {
+//      if (doc.getElementsByTagName("form").getLength() > 0) {
+//        HTMLFormElement form = (HTMLFormElement) doc.getElementsByTagName("form").item(0);
+//        if ("/oam/server/sso/auth_cred_submit".equals(form.getAttribute("action"))) {
+//          HTMLInputElement username = null;
+//          HTMLInputElement password = null;
+//          NodeList nodes = form.getElementsByTagName("input");
+//          for (int i = 0; i < nodes.getLength(); i++) {
+//            HTMLInputElement input = (HTMLInputElement) nodes.item(i);
+//            switch (input.getName()) {
+//              case "ssousername":
+//                username = input;
+//                break;
+//              case "password":
+//                password = input;
+//                break;
+//            }
+//          }
