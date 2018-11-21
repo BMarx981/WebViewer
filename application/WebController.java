@@ -50,21 +50,23 @@ public class WebController implements Initializable {
 	            new ChangeListener<State>() {
 	                public void changed(ObservableValue ov, State oldState, State newState) {
 	                    if (newState == Worker.State.SUCCEEDED) {
-	                        Document doc = engine.getDocument();
-	                        try {
-	                            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-	                            System.out.println(transformer.getOutputProperties());
-	                            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-	                            transformer.setOutputProperty(OutputKeys.METHOD, "html");
-	                            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-	                            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-	                            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-
-	                            transformer.transform(new DOMSource(doc),
-	                                    new StreamResult(new OutputStreamWriter(System.out, "UTF-8")));
-	                        } catch (Exception ex) {
-	                            ex.printStackTrace();
-	                        }
+	                    	String html = (String) engine.executeScript("document.forms");
+	                    	System.out.println(html);
+//	                        Document doc = engine.getDocument();
+//	                        try {
+//	                            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+//	                            System.out.println(transformer.getOutputProperties());
+//	                            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+//	                            transformer.setOutputProperty(OutputKeys.METHOD, "html");
+//	                            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+//	                            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+//	                            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+//
+//	                            transformer.transform(new DOMSource(doc),
+//	                                    new StreamResult(new OutputStreamWriter(System.out, "UTF-8")));
+//	                        } catch (Exception ex) {
+//	                            ex.printStackTrace();
+//	                        }
 	                    }
 	                }
 	            });
