@@ -8,6 +8,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -33,6 +34,13 @@ public class WebController implements Initializable {
 	public void searchFieldEntered() {
 //		String text = searchField.getText();
 		engine.load("https://www.google.com/");
+		Worker<Void> worker = engine.getLoadWorker();
+		
+		while (worker.isRunning()) {
+			System.out.println("working");
+		}
+		
+		
 	}
 	
 	public void searchButtonPressed() {
