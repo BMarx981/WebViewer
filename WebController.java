@@ -8,7 +8,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
+import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -22,6 +25,7 @@ public class WebController implements Initializable {
 	@FXML TextField searchField = new TextField();
 	@FXML Button search = new Button("Search");
 	WebEngine engine = new WebEngine();
+	Server server = new Server();
 	
 	ArrayList<String> elements = new ArrayList<String>();
 
@@ -32,25 +36,29 @@ public class WebController implements Initializable {
 	}
 	
 	public void searchFieldEntered() {
-//		String text = searchField.getText();
-		engine.load("https://www.google.com/");
-		Worker<Void> worker = engine.getLoadWorker();
-		
-		while (worker.isRunning()) {
-			System.out.println("working");
-		}
-		
-		
+		String text = searchField.getText();
+		engine.load(text);
+//		System.out.println(text);
+		engine.getLoadWorker().stateProperty().addListener(
+				new ChangeListener<State>() {
+					public void changed(ObservableValue ov, State oldState, State newState) {
+						if (newState == Worker.State.SUCCEEDED) {
+							System.out.println("It succeeded");
+						}
+					}
+				});
 	}
 	
 	public void searchButtonPressed() {
+//		server.connectToServer(9991);
 //		engine.load("http://localhost:8080/");
-		findElementsInDoc();
+		engine.load("http://www.google.com/");
+//		findElementsInDoc();
 	}
 	
 	private void findElementsInDoc() {
 		 Document doc = engine.getDocument();
-		 NodeList nodeList = doc.getElementsByTagName("div");
+		 NodeList nodeList = doc.getElementsByTagName("form");
 		 for (int i = 0; i < nodeList.getLength(); i++) {
 			 Node item = nodeList.item(i);
 			 String name = item.getNodeName();
